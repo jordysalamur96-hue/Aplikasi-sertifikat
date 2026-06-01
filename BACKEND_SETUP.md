@@ -51,6 +51,17 @@ PUBLIC_GOOGLE_DRIVE_FILES=true
 
 8. Deploy ulang site.
 
+Untuk akun Google Drive pribadi Gmail, service account bisa terkena batasan kuota.
+Gunakan OAuth Drive akun pemilik folder dengan env tambahan:
+
+```env
+GOOGLE_OAUTH_CLIENT_ID=...
+GOOGLE_OAUTH_CLIENT_SECRET=...
+GOOGLE_REFRESH_TOKEN=...
+```
+
+Jika `GOOGLE_REFRESH_TOKEN` tersedia, backend akan memakai OAuth tersebut untuk upload PDF.
+
 ## Endpoint API
 
 Login:
