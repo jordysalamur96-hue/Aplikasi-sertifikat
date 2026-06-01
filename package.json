@@ -1,0 +1,14 @@
+{
+  "name": "aplikasi-sertifikat-tuban",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Frontend dan backend Netlify untuk Sistem Arsip Sertifikat Hak Pakai Tuban.",
+  "scripts": {
+    "dev": "netlify dev",
+    "build": "echo \"Static site ready\"",
+    "check": "node --check script.js && node --check netlify/functions/certificates.js && node --check netlify/functions/login.js"
+  },
+  "devDependencies": {
+    "netlify-cli": "^17.38.1"
+  }
+}

@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sistem Arsip Sertifikat Tuban</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="auth-page" id="authPage">
+      <section class="auth-visual" aria-label="Ringkasan sistem arsip sertifikat">
+        <div class="brand-lockup">
+          <span class="brand-mark">ST</span>
+          <div>
+            <p class="eyebrow">Pemerintah Kabupaten Tuban</p>
+            <h1>Sistem Arsip Sertifikat Hak Pakai</h1>
+          </div>
+        </div>
+
+        <div class="certificate-preview">
+          <div class="certificate-top">
+            <span></span>
+            <strong>Sertifikat Hak Pakai</strong>
+          </div>
+          <div class="certificate-lines">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+          <div class="certificate-meta">
+            <div>
+              <small>Total arsip</small>
+              <b>1.248</b>
+            </div>
+            <div>
+              <small>PDF tersimpan</small>
+              <b>982</b>
+            </div>
+          </div>
+        </div>
+
+        <div class="feature-strip">
+          <span>Cepat dicari</span>
+          <span>Akses multi-user</span>
+          <span>Preview PDF</span>
+        </div>
+      </section>
+
+      <section class="login-panel" aria-labelledby="loginTitle">
+        <div class="login-card">
+          <div class="mobile-brand">
+            <span class="brand-mark">ST</span>
+            <p>Sistem Arsip Sertifikat Tuban</p>
+          </div>
+          <p class="eyebrow">Masuk aplikasi</p>
+          <h2 id="loginTitle">Selamat datang kembali</h2>
+          <p class="login-copy">
+            Kelola arsip sertifikat, file PDF, dan data aset dalam satu tempat yang rapi.
+          </p>
+
+          <form id="loginForm" class="login-form">
+            <label for="email">Email</label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              autocomplete="email"
+              placeholder="admin@tuban.go.id"
+              required
+            />
+
+            <label for="password">Password</label>
+            <div class="password-field">
+              <input
+                id="password"
+                name="password"
+                type="password"
+                autocomplete="current-password"
+                placeholder="Masukkan password"
+                required
+              />
+              <button class="icon-button" type="button" id="togglePassword" aria-label="Tampilkan password">
+                <span id="passwordIcon">Lihat</span>
+              </button>
+            </div>
+
+            <div class="form-row">
+              <label class="check-row">
+                <input type="checkbox" checked />
+                <span>Ingat saya</span>
+              </label>
+              <a href="#reset">Lupa password?</a>
+            </div>
+
+            <button class="primary-button" type="submit">Masuk Dashboard</button>
+            <p class="demo-note">Demo: gunakan email dan password apa saja.</p>
+          </form>
+        </div>
+      </section>
+    </main>
+
+    <main class="app-shell hidden" id="appShell">
+      <aside class="sidebar">
+        <div class="sidebar-brand">
+          <span class="brand-mark">ST</span>
+          <div>
+            <strong>Arsip Tuban</strong>
+            <small>Sertifikat Hak Pakai</small>
+          </div>
+        </div>
+
+        <nav class="side-nav" aria-label="Menu utama">
+          <button class="nav-item active" data-target="dashboard">Dashboard</button>
+          <button class="nav-item" data-target="sertifikat">Sertifikat</button>
+          <button class="nav-item" data-target="laporan">Laporan</button>
+          <button class="nav-item" data-target="user">User</button>
+        </nav>
+
+        <button class="logout-button" id="logoutButton">Keluar</button>
+      </aside>
+
+      <section class="workspace">
+        <header class="topbar">
+          <button class="menu-toggle" id="menuToggle" type="button" aria-label="Buka menu">Menu</button>
+          <div>
+            <p class="eyebrow">Dashboard arsip</p>
+            <h2>Pengelolaan Sertifikat Tuban</h2>
+          </div>
+          <div class="account-menu">
+            <button class="user-pill" id="accountButton" type="button" aria-haspopup="true" aria-expanded="false">
+              <span>Admin</span>
+              <b>A</b>
+            </button>
+            <div class="account-dropdown hidden" id="accountDropdown">
+              <div>
+                <strong>Admin</strong>
+                <small>Administrator</small>
+              </div>
+              <button class="logout-option" id="accountLogoutButton" type="button">Logout</button>
+            </div>
+          </div>
+        </header>
+
+        <section class="content-section active" id="dashboard">
+          <div class="stats-grid">
+            <article class="stat-card">
+              <small>Total Sertifikat</small>
+              <strong id="totalCertificates">0</strong>
+              <span>Data aktif di aplikasi</span>
+            </article>
+            <article class="stat-card">
+              <small>File PDF</small>
+              <strong id="totalPdfs">0</strong>
+              <span id="pdfPercent">0% sudah digital</span>
+            </article>
+            <article class="stat-card">
+              <small>Kecamatan</small>
+              <strong id="totalDistricts">0</strong>
+              <span>Terkelompok rapi</span>
+            </article>
+            <article class="stat-card">
+              <small>Status Hak Pakai</small>
+              <strong id="totalReview">0</strong>
+              <span>Sertifikat terklasifikasi</span>
+            </article>
+          </div>
+
+          <div class="dashboard-grid">
+            <article class="panel">
+              <div class="panel-heading">
+                <h3>Aktivitas Terbaru</h3>
+                <button class="soft-button">Lihat semua</button>
+              </div>
+              <ul class="activity-list" id="activityList">
+                <li><b>Belum ada aktivitas</b><span>Tambah data sertifikat untuk mulai mencatat arsip.</span></li>
+              </ul>
+            </article>
+
+            <article class="panel pink-panel">
+              <h3>Ringkasan Status</h3>
+              <div class="status-meter">
+                <span id="statusMeter" style="width: 0%"></span>
+              </div>
+              <p id="statusSummary">0% arsip sudah lengkap dengan data metadata dan scan PDF.</p>
+            </article>
+          </div>
+        </section>
+
+        <section class="content-section" id="sertifikat">
+          <div class="panel">
+            <div class="panel-heading">
+              <div>
+                <h3>Pengelolaan Sertifikat</h3>
+                <p>Daftar hanya menampilkan sertifikat yang sudah memiliki file PDF.</p>
+              </div>
+              <button class="primary-button compact" id="focusFormButton">Tambah</button>
+            </div>
+
+            <div class="filter-bar">
+              <input id="searchInput" type="search" placeholder="Cari nomor, lokasi, kecamatan..." />
+              <select id="statusFilter" aria-label="Filter status">
+                <option value="Semua Status">Semua Status</option>
+                <option value="Hak Pakai">Hak Pakai</option>
+              </select>
+            </div>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Nomor</th>
+                    <th>Nama Barang/Tanah</th>
+                    <th>Lokasi</th>
+                    <th>Tahun</th>
+                    <th>Status</th>
+                    <th>PDF</th>
+                    <th>Aksi</th>
+                  </tr>
+                </thead>
+                <tbody id="certificateRows"></tbody>
+              </table>
+            </div>
+            <p class="empty-state hidden" id="emptyState">Data tidak ditemukan.</p>
+          </div>
+        </section>
+
+        <section class="content-section" id="laporan">
+          <div class="panel">
+            <h3>Laporan & Export</h3>
+            <p>Siapkan rekap sertifikat berdasarkan kecamatan, status aset, tahun, dan jenis aset.</p>
+            <div class="report-actions">
+              <button class="soft-button" id="exportExcelButton">Export Excel</button>
+              <button class="soft-button" id="exportPdfButton">Export PDF</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="content-section" id="user">
+          <div class="panel">
+            <h3>Manajemen User</h3>
+            <div class="role-grid">
+              <div><b>Admin</b><span>Mengelola seluruh data dan user</span></div>
+              <div><b>Operator</b><span>Input dan edit data sertifikat</span></div>
+              <div><b>Pimpinan</b><span>Melihat data dan laporan</span></div>
+            </div>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <dialog class="form-dialog" id="certificateDialog">
+      <form class="certificate-form" id="certificateForm">
+        <div class="dialog-heading">
+          <div>
+            <p class="eyebrow">Menu Tambah</p>
+            <h3 id="certificateDialogTitle">Tambah Data Sertifikat & PDF</h3>
+          </div>
+          <button class="soft-button" type="button" id="closeFormButton">Tutup</button>
+        </div>
+
+        <div class="form-grid">
+          <label>
+            Nomor Sertifikat
+            <input id="nomorSertifikat" name="nomor" placeholder="SH-PK/2026/001" required />
+          </label>
+          <label>
+            Nama Barang/Tanah
+            <input id="namaAset" name="nama" placeholder="Tanah kantor pelayanan" required />
+          </label>
+          <label>
+            Kecamatan
+            <input id="kecamatan" name="kecamatan" placeholder="Semanding" required />
+          </label>
+          <label>
+            Kelurahan/Desa
+            <input id="kelurahan" name="kelurahan" placeholder="Gedongombo" required />
+          </label>
+          <label>
+            Lokasi
+            <input id="lokasi" name="lokasi" placeholder="Jl. Basuki Rahmat, Tuban" required />
+          </label>
+          <label>
+            Luas
+            <input id="luas" name="luas" placeholder="1.250 m2" required />
+          </label>
+          <label>
+            Tahun
+            <input id="tahun" name="tahun" type="number" min="1900" max="2100" placeholder="2026" required />
+          </label>
+          <label>
+            Status
+            <select id="status" name="status" required>
+              <option value="Hak Pakai">Hak Pakai</option>
+            </select>
+          </label>
+        </div>
+
+        <label>
+          Keterangan
+          <textarea id="keterangan" name="keterangan" placeholder="Catatan tambahan terkait sertifikat"></textarea>
+        </label>
+
+        <label class="upload-box" for="pdfFile">
+          <input id="pdfFile" type="file" accept="application/pdf" />
+          <strong id="pdfFileName">Pilih scan PDF sertifikat</strong>
+          <span>PDF wajib dipilih untuk menambahkan sertifikat ke daftar pengelolaan.</span>
+        </label>
+
+        <div class="form-actions">
+          <button class="primary-button compact" type="submit" id="saveCertificateButton">Simpan Sertifikat</button>
+          <button class="soft-button" type="button" id="previewPdfButton" disabled>Preview PDF</button>
+          <button class="soft-button" type="reset" id="resetFormButton">Reset</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog class="pdf-dialog" id="pdfDialog">
+      <div class="dialog-heading">
+        <div>
+          <p class="eyebrow">Preview PDF</p>
+          <h3 id="pdfDialogTitle">Scan Sertifikat</h3>
+        </div>
+        <button class="soft-button" type="button" id="closePdfButton">Tutup</button>
+      </div>
+      <iframe id="pdfViewer" title="Preview PDF sertifikat"></iframe>
+      <p class="demo-note">Preview PDF lokal hanya aktif selama file masih dipilih di sesi browser ini.</p>
+    </dialog>
+
+    <div class="toast hidden" id="toast" role="status"></div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
