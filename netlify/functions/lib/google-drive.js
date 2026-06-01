@@ -16,6 +16,10 @@ function getPrivateKey() {
 }
 
 async function getAccessToken() {
+  if (process.env.GOOGLE_REFRESH_TOKEN) {
+    return getOAuthAccessToken();
+  }
+
   requireEnv(["GOOGLE_CLIENT_EMAIL", "GOOGLE_PRIVATE_KEY"]);
 
   const now = Math.floor(Date.now() / 1000);
@@ -44,6 +48,31 @@ async function getAccessToken() {
 
   if (!response.ok) {
     const error = new Error(data.error_description || data.error || "Google OAuth failed");
+    error.statusCode = response.status;
+    error.details = data;
+    throw error;
+  }
+
+  return data.access_token;
+}
+
+async function getOAuthAccessToken() {
+  requireEnv(["GOOGLE_OAUTH_CLIENT_ID", "GOOGLE_OAUTH_CLIENT_SECRET", "GOOGLE_REFRESH_TOKEN"]);
+
+  const response = await fetch("https://oauth2.googleapis.com/token", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({
+      client_id: process.env.GOOGLE_OAUTH_CLIENT_ID,
+      client_secret: process.env.GOOGLE_OAUTH_CLIENT_SECRET,
+      refresh_token: process.env.GOOGLE_REFRESH_TOKEN,
+      grant_type: "refresh_token",
+    }),
+  });
+  const data = await response.json();
+
+  if (!response.ok) {
+    const error = new Error(data.error_description || data.error || "Google OAuth refresh failed");
     error.statusCode = response.status;
     error.details = data;
     throw error;
