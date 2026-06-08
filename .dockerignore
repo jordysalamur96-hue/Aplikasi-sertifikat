@@ -1,0 +1,9 @@
+node_modules
+.git
+.env
+.env.*
+data
+npm-debug.log*
+Dockerfile
+README-CASAOS.md
+tests

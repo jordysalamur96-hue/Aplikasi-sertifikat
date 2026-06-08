@@ -1,0 +1,16 @@
+services:
+  aplikasi-sertifikat:
+    build: .
+    container_name: aplikasi-sertifikat
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      HOST: 0.0.0.0
+      PORT: 3000
+      DATA_DIR: /app/data
+      LOCAL_ADMIN_EMAIL: admin@example.com
+      LOCAL_ADMIN_PASSWORD: ganti-password-ini
+      TOKEN_SECRET: ganti-token-secret-panjang-dan-acak
+    volumes:
+      - ./data:/app/data

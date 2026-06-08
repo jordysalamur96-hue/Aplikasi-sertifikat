@@ -2,13 +2,12 @@
   "name": "aplikasi-sertifikat-tuban",
   "version": "1.0.0",
   "private": true,
-  "description": "Frontend dan backend Netlify untuk Sistem Arsip Sertifikat Hak Pakai Tuban.",
+  "description": "Sistem Arsip Sertifikat Hak Pakai Tuban - backend lokal untuk CasaOS/Docker.",
   "scripts": {
-    "dev": "netlify dev",
-    "build": "echo \"Static site ready\"",
-    "check": "node --check script.js && node --check netlify/functions/certificates.js && node --check netlify/functions/login.js"
-  },
-  "devDependencies": {
-    "netlify-cli": "^17.38.1"
+    "start": "node server.js",
+    "dev": "node server.js",
+    "test": "node --test tests/*.test.js",
+    "check": "node --check script.js && node --check server.js && node --test tests/*.test.js",
+    "build": "echo \"Static site ready\""
   }
 }

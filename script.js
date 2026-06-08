@@ -139,9 +139,7 @@ function mapApiCertificate(row) {
     keterangan: row.keterangan || "",
     pdfName: row.pdf_name || "",
     hasPdf: Boolean(row.has_pdf),
-    googleDriveFileId: row.google_drive_file_id || "",
-    googleDriveViewUrl: row.google_drive_view_url || "",
-    googleDriveDownloadUrl: row.google_drive_download_url || "",
+    localPdfUrl: row.local_pdf_url || "",
     createdAt: row.created_at,
   };
 }
@@ -252,23 +250,24 @@ function getUploadedCertificates() {
 function renderRows(rows) {
   certificateRows.innerHTML = rows
     .map((item) => {
-      const statusClass = item.status.toLowerCase().replaceAll(" ", "-");
+      const statusClass = String(item.status || "").toLowerCase().replace(/[^a-z0-9-]+/g, "-");
       const pdfLabel = item.pdfName || "Belum ada";
-      const canPreview = sessionPdfUrls.has(item.id) || Boolean(item.googleDriveViewUrl);
+      const canPreview = sessionPdfUrls.has(item.id) || Boolean(item.localPdfUrl);
+      const escapedId = escapeHtml(item.id);
 
       return `
         <tr>
-          <td><strong>${item.nomor}</strong></td>
-          <td>${item.nama}</td>
-          <td>${item.lokasi}</td>
-          <td>${item.tahun}</td>
-          <td><span class="status-badge ${statusClass}">${item.status}</span></td>
-          <td>${pdfLabel}</td>
+          <td><strong>${escapeHtml(item.nomor)}</strong></td>
+          <td>${escapeHtml(item.nama)}</td>
+          <td>${escapeHtml(item.lokasi)}</td>
+          <td>${escapeHtml(item.tahun)}</td>
+          <td><span class="status-badge ${statusClass}">${escapeHtml(item.status)}</span></td>
+          <td>${escapeHtml(pdfLabel)}</td>
           <td>
             <div class="table-actions">
-              <button class="soft-button small" type="button" data-action="preview" data-id="${item.id}" ${canPreview ? "" : "disabled"}>Preview</button>
-              <button class="soft-button small" type="button" data-action="edit" data-id="${item.id}">Edit</button>
-              <button class="soft-button small danger" type="button" data-action="delete" data-id="${item.id}">Hapus</button>
+              <button class="soft-button small" type="button" data-action="preview" data-id="${escapedId}" ${canPreview ? "" : "disabled"}>Preview</button>
+              <button class="soft-button small" type="button" data-action="edit" data-id="${escapedId}">Edit</button>
+              <button class="soft-button small danger" type="button" data-action="delete" data-id="${escapedId}">Hapus</button>
             </div>
           </td>
         </tr>
@@ -299,7 +298,7 @@ function renderDashboard() {
   const latestRows = uploadedCertificates.slice(-3).reverse();
   document.querySelector("#activityList").innerHTML = latestRows.length
     ? latestRows
-        .map((item) => `<li><b>${item.nomor}</b><span>${item.nama} - ${item.status}</span></li>`)
+        .map((item) => `<li><b>${escapeHtml(item.nomor)}</b><span>${escapeHtml(item.nama)} - ${escapeHtml(item.status)}</span></li>`)
         .join("")
     : "<li><b>Belum ada aktivitas</b><span>Tambah data sertifikat untuk mulai mencatat arsip.</span></li>";
 }
@@ -342,7 +341,7 @@ function fillForm(item) {
   pdfFileName.textContent = item.pdfName || "Pilih scan PDF sertifikat";
   saveCertificateButton.textContent = "Update Sertifikat";
   certificateDialogTitle.textContent = "Edit Data Sertifikat & PDF";
-  previewPdfButton.disabled = !sessionPdfUrls.has(item.id);
+  previewPdfButton.disabled = !(sessionPdfUrls.has(item.id) || item.localPdfUrl);
   certificateDialog.showModal();
 }
 
@@ -356,12 +355,36 @@ function resetCertificateForm() {
   previewPdfButton.disabled = true;
 }
 
-function showPdfPreview(id, title) {
+async function getPdfPreviewUrl(item, id) {
+  if (sessionPdfUrls.has(id)) return sessionPdfUrls.get(id);
+  if (!item?.localPdfUrl) return "";
+
+  const token = localStorage.getItem(authTokenKey);
+  const response = await fetch(item.localPdfUrl, {
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  });
+
+  if (!response.ok) throw new Error("Gagal membuka file PDF. Silakan login ulang jika sesi sudah habis.");
+
+  const blob = await response.blob();
+  const url = URL.createObjectURL(blob);
+  sessionPdfUrls.set(id, url);
+  return url;
+}
+
+async function showPdfPreview(id, title) {
   const item = certificateData.find((row) => row.id === id);
-  const pdfUrl = sessionPdfUrls.get(id) || item?.googleDriveViewUrl;
+  let pdfUrl = "";
+
+  try {
+    pdfUrl = await getPdfPreviewUrl(item, id);
+  } catch (error) {
+    showToast(error.message || "PDF belum tersedia untuk preview.");
+    return;
+  }
 
   if (!pdfUrl) {
-    showToast("PDF lama hanya tersimpan sebagai metadata demo. Pilih ulang file PDF untuk preview lokal.");
+    showToast("PDF belum tersedia untuk preview. Pilih ulang file PDF jika ini data demo lama.");
     return;
   }
 
@@ -505,10 +528,12 @@ loginForm.addEventListener("submit", async (event) => {
     });
     localStorage.setItem(authTokenKey, response.accessToken);
     backendReady = true;
-  } catch {
+  } catch (error) {
     localStorage.removeItem(authTokenKey);
     backendReady = false;
-    showToast("Backend login belum aktif, masuk memakai mode demo lokal.");
+    localStorage.removeItem("arsipTubanLoggedIn");
+    showToast(error.message || "Login gagal. Periksa email/password dan server lokal.");
+    return;
   }
 
   localStorage.setItem("arsipTubanLoggedIn", "true");
@@ -643,17 +668,11 @@ certificateForm.addEventListener("submit", async (event) => {
 
     savedByBackend = true;
     backendReady = true;
-    showToast(editingId ? "Data diperbarui di Supabase." : "Data tersimpan ke Supabase dan PDF ke Google Drive.");
-  } catch {
+    showToast(editingId ? "Data diperbarui di server lokal." : "Data dan PDF tersimpan di server lokal.");
+  } catch (error) {
     backendReady = false;
-
-    if (editingId) {
-      certificateData = certificateData.map((row) => (row.id === editingId ? item : row));
-      showToast("Backend belum aktif, data diperbarui di mode lokal.");
-    } else {
-      certificateData.push(item);
-      showToast("Backend belum aktif, data disimpan di mode lokal.");
-    }
+    showToast(error.message || "Gagal menyimpan ke server lokal. Data belum disimpan.");
+    return;
   }
 
   if (savedByBackend && selectedPdf) {
@@ -696,9 +715,10 @@ certificateRows.addEventListener("click", async (event) => {
         method: "DELETE",
       });
       backendReady = true;
-    } catch {
+    } catch (error) {
       backendReady = false;
-      showToast("Backend belum aktif, data dihapus dari mode lokal.");
+      showToast(error.message || "Gagal menghapus data di server lokal.");
+      return;
     }
 
     const oldUrl = sessionPdfUrls.get(item.id);
