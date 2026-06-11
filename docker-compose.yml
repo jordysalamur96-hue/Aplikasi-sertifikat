@@ -4,13 +4,13 @@ services:
     container_name: aplikasi-sertifikat
     restart: unless-stopped
     ports:
-      - "3000:3000"
+      - "${TAILSCALE_IP:-100.66.177.8}:${APP_PORT:-8081}:3000"
     environment:
       HOST: 0.0.0.0
       PORT: 3000
       DATA_DIR: /app/data
-      LOCAL_ADMIN_EMAIL: admin@example.com
-      LOCAL_ADMIN_PASSWORD: ganti-password-ini
-      TOKEN_SECRET: ganti-token-secret-panjang-dan-acak
+      LOCAL_ADMIN_EMAIL: ${LOCAL_ADMIN_EMAIL:?isi LOCAL_ADMIN_EMAIL di file .env}
+      LOCAL_ADMIN_PASSWORD: ${LOCAL_ADMIN_PASSWORD:?isi LOCAL_ADMIN_PASSWORD di file .env}
+      TOKEN_SECRET: ${TOKEN_SECRET:?isi TOKEN_SECRET di file .env}
     volumes:
-      - ./data:/app/data
+      - /opt/aplikasi-sertifikat/data:/app/data
