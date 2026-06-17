@@ -47,8 +47,19 @@ jobs:
           chmod 700 ~/.ssh
           printf '%s\n' "$SERVER_SSH_KEY" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
-          ssh-keyscan -T 10 -H "$SERVER_HOST" >> ~/.ssh/known_hosts
-          ssh -i ~/.ssh/deploy_key -o IdentitiesOnly=yes -o ConnectTimeout=30 "$SERVER_USER@$SERVER_HOST" <<'EOF'
+
+          echo "== Check SSH port on server =="
+          timeout 20 bash -c "</dev/tcp/$SERVER_HOST/22" || {
+            echo "ERROR: Cannot reach $SERVER_HOST:22 from GitHub runner after Tailscale connect"
+            exit 1
+          }
+
+          echo "== Run remote deploy =="
+          ssh -i ~/.ssh/deploy_key \
+            -o IdentitiesOnly=yes \
+            -o ConnectTimeout=30 \
+            -o StrictHostKeyChecking=accept-new \
+            "$SERVER_USER@$SERVER_HOST" <<'EOF'
           set -euo pipefail
           cd /opt/aplikasi-sertifikat/app
           chmod +x ./deploy.sh
