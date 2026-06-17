@@ -34,7 +34,7 @@ jobs:
           tags: tag:ci
 
       - name: Show Tailscale status
-        run: tailscale status
+        run: tailscale status || true
 
       - name: Deploy to server via SSH
         env:
