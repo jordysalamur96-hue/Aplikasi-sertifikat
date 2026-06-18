@@ -4,9 +4,14 @@ const apiBase = "/api";
 const sessionPdfUrls = new Map();
 let backendReady = false;
 
+function generateId() {
+  if (globalThis.crypto?.randomUUID) return globalThis.crypto.randomUUID();
+  return `local-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+}
+
 const seedData = [
   {
-    id: crypto.randomUUID(),
+    id: generateId(),
     nomor: "SH-PK/2026/014",
     nama: "Tanah Kantor Pelayanan",
     kecamatan: "Semanding",
@@ -21,7 +26,7 @@ const seedData = [
     createdAt: new Date().toISOString(),
   },
   {
-    id: crypto.randomUUID(),
+    id: generateId(),
     nomor: "SH-PK/2025/118",
     nama: "Lahan Fasilitas Umum",
     kecamatan: "Merakurak",
@@ -36,7 +41,7 @@ const seedData = [
     createdAt: new Date().toISOString(),
   },
   {
-    id: crypto.randomUUID(),
+    id: generateId(),
     nomor: "SH-PK/2024/331",
     nama: "Gedung Arsip Daerah",
     kecamatan: "Tuban",
@@ -51,7 +56,7 @@ const seedData = [
     createdAt: new Date().toISOString(),
   },
   {
-    id: crypto.randomUUID(),
+    id: generateId(),
     nomor: "SH-PK/2023/087",
     nama: "Tanah Puskesmas",
     kecamatan: "Jenu",
