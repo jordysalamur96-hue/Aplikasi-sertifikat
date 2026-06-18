@@ -124,6 +124,7 @@ test("certificate API stores metadata and PDF in the local data directory", asyn
       body: JSON.stringify({
         nomor: "SH-PK/2026/001",
         nama: "Tanah Kantor",
+        opd: "Dinas Pengujian",
         kecamatan: "Tuban",
         kelurahan: "Latsari",
         lokasi: "Jl. Contoh",
@@ -175,6 +176,7 @@ test("certificate API rejects invalid year and non-PDF content", async () => {
     const basePayload = {
       nomor: "SH-PK/2026/003",
       nama: "Validasi",
+      opd: "Dinas Validasi",
       kecamatan: "Tuban",
       kelurahan: "Latsari",
       lokasi: "Jl. Validasi",
@@ -220,6 +222,7 @@ test("certificate API updates and deletes a stored certificate", async () => {
       body: JSON.stringify({
         nomor: "SH-PK/2026/002",
         nama: "Nama Awal",
+        opd: "Dinas Awal",
         kecamatan: "Tuban",
         kelurahan: "Latsari",
         lokasi: "Jl. Contoh",
@@ -237,6 +240,7 @@ test("certificate API updates and deletes a stored certificate", async () => {
         id,
         nomor: "SH-PK/2026/002",
         nama: "Nama Revisi",
+        opd: "Dinas Revisi",
         kecamatan: "Tuban",
         kelurahan: "Latsari",
         lokasi: "Jl. Contoh Revisi",
@@ -258,6 +262,7 @@ test("certificate API updates and deletes a stored certificate", async () => {
         id,
         nomor: "SH-PK/2026/002",
         nama: "Nama Revisi",
+        opd: "Dinas Revisi",
         kecamatan: "Tuban",
         kelurahan: "Latsari",
         lokasi: "Jl. Contoh Revisi",

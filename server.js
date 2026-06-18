@@ -6,7 +6,7 @@ const path = require("node:path");
 
 const ROOT = __dirname;
 const DEFAULT_DATA_DIR = path.join(ROOT, "data");
-const REQUIRED_FIELDS = ["nomor", "nama", "kecamatan", "kelurahan", "lokasi", "luas", "tahun"];
+const REQUIRED_FIELDS = ["nomor", "nama", "opd", "kecamatan", "kelurahan", "lokasi", "luas", "tahun"];
 
 function loadEnvFile(envFile = path.join(ROOT, ".env")) {
   try {
@@ -169,6 +169,7 @@ function mapCertificatePayload(payload, existing = {}, pdfFile = null) {
     id: existing.id || payload.id || crypto.randomUUID(),
     nomor: payload.nomor,
     nama: payload.nama,
+    opd: payload.opd || existing.opd || "",
     kecamatan: payload.kecamatan,
     kelurahan: payload.kelurahan,
     lokasi: payload.lokasi,

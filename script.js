@@ -14,6 +14,7 @@ const seedData = [
     id: generateId(),
     nomor: "SH-PK/2026/014",
     nama: "Tanah Kantor Pelayanan",
+    opd: "Sekretariat Daerah",
     kecamatan: "Semanding",
     kelurahan: "Gedongombo",
     lokasi: "Semanding, Tuban",
@@ -29,6 +30,7 @@ const seedData = [
     id: generateId(),
     nomor: "SH-PK/2025/118",
     nama: "Lahan Fasilitas Umum",
+    opd: "Sekretariat Daerah",
     kecamatan: "Merakurak",
     kelurahan: "Tegalrejo",
     lokasi: "Merakurak, Tuban",
@@ -44,6 +46,7 @@ const seedData = [
     id: generateId(),
     nomor: "SH-PK/2024/331",
     nama: "Gedung Arsip Daerah",
+    opd: "Dinas Perpustakaan dan Kearsipan",
     kecamatan: "Tuban",
     kelurahan: "Latsari",
     lokasi: "Tuban Kota",
@@ -59,6 +62,7 @@ const seedData = [
     id: generateId(),
     nomor: "SH-PK/2023/087",
     nama: "Tanah Puskesmas",
+    opd: "Dinas Kesehatan",
     kecamatan: "Jenu",
     kelurahan: "Beji",
     lokasi: "Jenu, Tuban",
@@ -89,6 +93,8 @@ const passwordIcon = document.querySelector("#passwordIcon");
 const certificateForm = document.querySelector("#certificateForm");
 const certificateRows = document.querySelector("#certificateRows");
 const searchInput = document.querySelector("#searchInput");
+const opdFilter = document.querySelector("#opdFilter");
+const districtFilter = document.querySelector("#districtFilter");
 const statusFilter = document.querySelector("#statusFilter");
 const sidebar = document.querySelector(".sidebar");
 const menuToggle = document.querySelector("#menuToggle");
@@ -135,6 +141,7 @@ function mapApiCertificate(row) {
     id: row.id,
     nomor: row.nomor,
     nama: row.nama,
+    opd: row.opd || "Belum ada OPD",
     kecamatan: row.kecamatan,
     kelurahan: row.kelurahan,
     lokasi: row.lokasi,
@@ -194,6 +201,7 @@ async function buildApiPayload(item) {
     id: editingId,
     nomor: item.nomor,
     nama: item.nama,
+    opd: item.opd,
     kecamatan: item.kecamatan,
     kelurahan: item.kelurahan,
     lokasi: item.lokasi,
@@ -238,13 +246,16 @@ function setActiveSection(target) {
 
 function getFilteredRows() {
   const keyword = searchInput.value.trim().toLowerCase();
+  const selectedOpd = opdFilter.value;
+  const selectedDistrict = districtFilter.value;
   const status = statusFilter.value;
 
   return getUploadedCertificates().filter((item) => {
-
     const matchesKeyword = Object.values(item).some((value) => String(value).toLowerCase().includes(keyword));
+    const matchesOpd = selectedOpd === "Semua OPD" || item.opd === selectedOpd;
+    const matchesDistrict = selectedDistrict === "Semua Kecamatan" || item.kecamatan === selectedDistrict;
     const matchesStatus = status === "Semua Status" || item.status === status;
-    return matchesKeyword && matchesStatus;
+    return matchesKeyword && matchesOpd && matchesDistrict && matchesStatus;
   });
 }
 
@@ -264,6 +275,8 @@ function renderRows(rows) {
         <tr>
           <td><strong>${escapeHtml(item.nomor)}</strong></td>
           <td>${escapeHtml(item.nama)}</td>
+          <td>${escapeHtml(item.opd || "Belum ada OPD")}</td>
+          <td>${escapeHtml(item.kecamatan)}</td>
           <td>${escapeHtml(item.lokasi)}</td>
           <td>${escapeHtml(item.tahun)}</td>
           <td><span class="status-badge ${statusClass}">${escapeHtml(item.status)}</span></td>
@@ -288,14 +301,12 @@ function renderDashboard() {
   const total = uploadedCertificates.length;
   const totalPdfs = uploadedCertificates.length;
   const districtCount = new Set(uploadedCertificates.map((item) => item.kecamatan).filter(Boolean)).size;
-  const hakPakaiCount = uploadedCertificates.filter((item) => item.status === "Hak Pakai").length;
+  const opdCount = new Set(uploadedCertificates.map((item) => item.opd).filter(Boolean)).size;
   const pdfPercentValue = total ? Math.round((totalPdfs / total) * 100) : 0;
 
   document.querySelector("#totalCertificates").textContent = total;
-  document.querySelector("#totalPdfs").textContent = totalPdfs;
+  document.querySelector("#totalOpd").textContent = opdCount;
   document.querySelector("#totalDistricts").textContent = districtCount;
-  document.querySelector("#totalReview").textContent = hakPakaiCount;
-  document.querySelector("#pdfPercent").textContent = `${pdfPercentValue}% sudah digital`;
   document.querySelector("#statusMeter").style.width = `${pdfPercentValue}%`;
   document.querySelector("#statusSummary").textContent =
     `${pdfPercentValue}% arsip sudah lengkap dengan data metadata dan scan PDF.`;
@@ -303,21 +314,49 @@ function renderDashboard() {
   const latestRows = uploadedCertificates.slice(-3).reverse();
   document.querySelector("#activityList").innerHTML = latestRows.length
     ? latestRows
-        .map((item) => `<li><b>${escapeHtml(item.nomor)}</b><span>${escapeHtml(item.nama)} - ${escapeHtml(item.status)}</span></li>`)
+        .map((item) => `<li><b>${escapeHtml(item.nomor)}</b><span>${escapeHtml(item.nama)} - ${escapeHtml(item.opd || "Belum ada OPD")}</span></li>`)
         .join("")
     : "<li><b>Belum ada aktivitas</b><span>Tambah data sertifikat untuk mulai mencatat arsip.</span></li>";
 }
 
+function syncFilterOptions() {
+  const currentOpd = opdFilter.value || "Semua OPD";
+  const currentDistrict = districtFilter.value || "Semua Kecamatan";
+  const rows = getUploadedCertificates();
+  const buildOptions = (values, allLabel) => [allLabel, ...values]
+    .map((value) => `<option value="${escapeHtml(value)}">${escapeHtml(value)}</option>`)
+    .join("");
+
+  const opdValues = [...new Set(rows.map((item) => item.opd || "Belum ada OPD"))].sort((a, b) => a.localeCompare(b, "id"));
+  const districtValues = [...new Set(rows.map((item) => item.kecamatan).filter(Boolean))].sort((a, b) => a.localeCompare(b, "id"));
+  opdFilter.innerHTML = buildOptions(opdValues, "Semua OPD");
+  districtFilter.innerHTML = buildOptions(districtValues, "Semua Kecamatan");
+  opdFilter.value = opdValues.includes(currentOpd) ? currentOpd : "Semua OPD";
+  districtFilter.value = districtValues.includes(currentDistrict) ? currentDistrict : "Semua Kecamatan";
+}
+
+function renderCertificateInfo(rows) {
+  const total = rows.length;
+  const opdCount = new Set(rows.map((item) => item.opd).filter(Boolean)).size;
+  const districtCount = new Set(rows.map((item) => item.kecamatan).filter(Boolean)).size;
+  document.querySelector("#certificateInfo").textContent =
+    `Menampilkan ${total} sertifikat dari ${opdCount} OPD dan ${districtCount} Kecamatan.`;
+}
+
 function renderAll() {
-  renderRows(getFilteredRows());
+  syncFilterOptions();
+  const filteredRows = getFilteredRows();
+  renderRows(filteredRows);
+  renderCertificateInfo(filteredRows);
   renderDashboard();
 }
 
 function getFormData() {
   return {
-    id: editingId || crypto.randomUUID(),
+    id: editingId || generateId(),
     nomor: document.querySelector("#nomorSertifikat").value.trim(),
     nama: document.querySelector("#namaAset").value.trim(),
+    opd: document.querySelector("#opd").value.trim(),
     kecamatan: document.querySelector("#kecamatan").value.trim(),
     kelurahan: document.querySelector("#kelurahan").value.trim(),
     lokasi: document.querySelector("#lokasi").value.trim(),
@@ -336,6 +375,7 @@ function fillForm(item) {
   selectedPdf = null;
   document.querySelector("#nomorSertifikat").value = item.nomor;
   document.querySelector("#namaAset").value = item.nama;
+  document.querySelector("#opd").value = item.opd || "";
   document.querySelector("#kecamatan").value = item.kecamatan;
   document.querySelector("#kelurahan").value = item.kelurahan;
   document.querySelector("#lokasi").value = item.lokasi;
@@ -419,6 +459,7 @@ function getReportRows() {
   return getUploadedCertificates().map((item) => ({
     nomor: item.nomor,
     nama: item.nama,
+    opd: item.opd,
     kecamatan: item.kecamatan,
     kelurahan: item.kelurahan,
     lokasi: item.lokasi,
@@ -438,7 +479,7 @@ function escapeHtml(value) {
 }
 
 function buildReportTable() {
-  const headers = ["Nomor", "Nama Barang/Tanah", "Kecamatan", "Kelurahan/Desa", "Lokasi", "Luas", "Tahun", "Status", "Keterangan"];
+  const headers = ["Nomor", "Nama Barang/Tanah", "Nama OPD", "Kecamatan", "Kelurahan/Desa", "Lokasi", "Luas", "Tahun", "Status", "Keterangan"];
   const rows = getReportRows();
   const body = rows
     .map(
@@ -446,6 +487,7 @@ function buildReportTable() {
         <tr>
           <td>${escapeHtml(item.nomor)}</td>
           <td>${escapeHtml(item.nama)}</td>
+          <td>${escapeHtml(item.opd)}</td>
           <td>${escapeHtml(item.kecamatan)}</td>
           <td>${escapeHtml(item.kelurahan)}</td>
           <td>${escapeHtml(item.lokasi)}</td>
@@ -585,7 +627,17 @@ document.querySelectorAll(".nav-item").forEach((button) => {
   button.addEventListener("click", () => setActiveSection(button.dataset.target));
 });
 
+document.querySelectorAll(".stat-link").forEach((button) => {
+  button.addEventListener("click", () => {
+    setActiveSection(button.dataset.target);
+    const focusTarget = button.dataset.focusFilter;
+    if (focusTarget) document.querySelector(`#${focusTarget}`)?.focus();
+  });
+});
+
 searchInput.addEventListener("input", renderAll);
+opdFilter.addEventListener("change", renderAll);
+districtFilter.addEventListener("change", renderAll);
 statusFilter.addEventListener("change", renderAll);
 
 menuToggle.addEventListener("click", () => {

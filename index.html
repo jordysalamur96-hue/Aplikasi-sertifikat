@@ -142,27 +142,22 @@
         </header>
 
         <section class="content-section active" id="dashboard">
-          <div class="stats-grid">
-            <article class="stat-card">
+          <div class="stats-grid dashboard-links">
+            <button class="stat-card stat-link" type="button" data-target="sertifikat">
               <small>Total Sertifikat</small>
               <strong id="totalCertificates">0</strong>
-              <span>Data aktif di aplikasi</span>
-            </article>
-            <article class="stat-card">
-              <small>File PDF</small>
-              <strong id="totalPdfs">0</strong>
-              <span id="pdfPercent">0% sudah digital</span>
-            </article>
-            <article class="stat-card">
-              <small>Kecamatan</small>
+              <span>Klik untuk membuka daftar sertifikat</span>
+            </button>
+            <button class="stat-card stat-link" type="button" data-target="sertifikat" data-focus-filter="opdFilter">
+              <small>Total OPD</small>
+              <strong id="totalOpd">0</strong>
+              <span>Klik untuk filter berdasarkan OPD</span>
+            </button>
+            <button class="stat-card stat-link" type="button" data-target="sertifikat" data-focus-filter="districtFilter">
+              <small>Total Kecamatan</small>
               <strong id="totalDistricts">0</strong>
-              <span>Terkelompok rapi</span>
-            </article>
-            <article class="stat-card">
-              <small>Status Hak Pakai</small>
-              <strong id="totalReview">0</strong>
-              <span>Sertifikat terklasifikasi</span>
-            </article>
+              <span>Klik untuk filter berdasarkan Kecamatan</span>
+            </button>
           </div>
 
           <div class="dashboard-grid">
@@ -191,13 +186,19 @@
             <div class="panel-heading">
               <div>
                 <h3>Pengelolaan Sertifikat</h3>
-                <p>Daftar hanya menampilkan sertifikat yang sudah memiliki file PDF.</p>
+                <p id="certificateInfo">Daftar menampilkan sertifikat lengkap dengan Nama OPD dan Kecamatan.</p>
               </div>
               <button class="primary-button compact" id="focusFormButton">Tambah</button>
             </div>
 
             <div class="filter-bar">
-              <input id="searchInput" type="search" placeholder="Cari nomor, lokasi, kecamatan..." />
+              <input id="searchInput" type="search" placeholder="Cari nomor, OPD, lokasi, kecamatan..." />
+              <select id="opdFilter" aria-label="Filter OPD">
+                <option value="Semua OPD">Semua OPD</option>
+              </select>
+              <select id="districtFilter" aria-label="Filter Kecamatan">
+                <option value="Semua Kecamatan">Semua Kecamatan</option>
+              </select>
               <select id="statusFilter" aria-label="Filter status">
                 <option value="Semua Status">Semua Status</option>
                 <option value="Hak Pakai">Hak Pakai</option>
@@ -210,6 +211,8 @@
                   <tr>
                     <th>Nomor</th>
                     <th>Nama Barang/Tanah</th>
+                    <th>Nama OPD</th>
+                    <th>Kecamatan</th>
                     <th>Lokasi</th>
                     <th>Tahun</th>
                     <th>Status</th>
@@ -266,6 +269,10 @@
           <label>
             Nama Barang/Tanah
             <input id="namaAset" name="nama" placeholder="Tanah kantor pelayanan" required />
+          </label>
+          <label>
+            Nama OPD
+            <input id="opd" name="opd" placeholder="Dinas / Badan / Kecamatan" required />
           </label>
           <label>
             Kecamatan
